@@ -1,0 +1,47 @@
+﻿.game-lobby{
+    border:1px solid black;
+    margin-top:1%;
+}
+    .game-lobby header {
+        text-align: center;
+        border-bottom: 1px solid black;
+        padding:0.5%;
+    }
+        .game-lobby header a {
+            border: 1px solid black;
+            border-radius:5px;
+            margin-left:5%;
+            padding:0.5%;
+            cursor:pointer;
+        }
+.game-lobby_list{
+    width:100%;
+}
+    .game-lobby_list tr:nth-child(even) {
+        background-color:#dcdcdc;
+        border-top: 1px solid lightgray;
+    }
+    .game-lobby_list tr td:first-child {
+        text-align: center;
+        padding: 0.2%;
+    }
+    .game-lobby_list img{
+        max-width: 70px;
+        max-height: 70px;
+    }
+.details_info {
+    width: 100%;
+}
+.details_point-info{
+    width:100%;
+    border:1px solid black;
+}
+    .details_point-info td, th{
+        text-align:center;
+        border: 1px solid black;
+    }
+    .details_point-info tr :first-child {
+        text-align: start;
+        border: 1px solid black;
+        padding-left: 1%
+    }

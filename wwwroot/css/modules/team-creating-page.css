@@ -1,0 +1,114 @@
+﻿
+.team-creating {
+    display: grid;
+    grid-auto-rows: auto;
+    grid-template-columns: 24% 73%;
+    grid-gap: 1%;
+}
+.game-head{
+    width:100%;
+}
+    .game-head table{
+        width:100%;
+        border:none;
+    }
+        .game-head table th {
+            border: none;
+            background-color:#7aff74;
+            border-bottom: 3px solid black;
+            text-align: start;
+        }
+    .game-head img{
+        max-width:70px;
+    }
+.team-creating_select-players-menu table{
+    width:100%;
+}
+    .team-creating_select-players-menu table td {
+        border: 1px solid lightgray;
+        background-color: #0b4200;
+        color:white;
+        
+    }
+    .team-creating_select-players-menu table td {
+        border: 1px solid lightgray;
+        background-color: #0b4200;
+        color: white;
+    }
+    .team-creating_select-players-menu img {
+        max-width:40px;
+        max-height:auto;
+    }
+.team-creating_select-players-menu_positions-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 19%);
+    gap: 1%;
+    text-align: center;
+    margin-bottom: 1%;
+    margin-top: 1%;
+}
+    .team-creating_select-players-menu_positions-bar button {
+        border-color:white;
+    }
+    .team-creating_select-players-menu_positions-bar button.active {
+        background-color:black;
+    }
+.team-creating_select-players-menu_input-plus-clean {
+    width: 100%;
+    align-items: center;
+    display: flex;
+    width: 100%;
+}
+    .team-creating_select-players-menu_input-plus-clean button {
+        border: 2px solid black;
+        margin-left: auto;
+        background-color:white;
+    }
+.team-creating_select-players-menu_filters {
+    background-color: #0b4200;
+    margin-bottom:2%;
+    padding:1%;
+}
+.team-creating_squad {
+    width: 100%;
+    text-align: center;
+    background-image: url('/css/images/pitch.jpg');
+    background-repeat: no-repeat;
+    background-position-x:center;
+}
+.team-creating_squad_line {
+        display: grid;
+        width: 100%;
+        margin-top: 5%;
+        grid-gap: 5%;
+        justify-content: center;
+        align-items: center;
+    }
+    .team-creating_squad_line:first-child{
+        margin-top: 5%;
+    }
+    .team-creating_squad_line:last-child {
+        margin-bottom: 5%;
+    }
+.line_player {
+    border: 2px solid black;
+    background-color: green;
+    width: 100%;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: calc( (100vw - 320px)/(2000 - 320) * (11 - 9) + 9px);
+    color:white;
+}
+    .line_player img{
+        max-width:60px;
+        padding:4%;
+    }
+.line_player_image-container {
+    background-color: #494949;
+    border-radius: 5px;
+}
+.line_player_tools{
+    display:flex;
+    background-color:white;
+    border-radius: 5px;
+}

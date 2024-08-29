@@ -1,0 +1,556 @@
+﻿@page "/entry/{gameId:int}"
+@inject ApplicationDbContext context
+@using LovchaFantasy.Models.Fantasy
+@using LovchaFantasy.Models.Components
+@using LovchaFantasy.Context
+@using Microsoft.EntityFrameworkCore
+@using LovchaFantasy.Components
+
+<div class="game-head">
+    <table>
+        <thead>
+            <tr>
+                <th width="10%">
+                    @if (game?.Image != null)
+                    {
+                        <img src="@game.Image.FilePath" alt="@game.Image.FileName" />
+                    }
+                </th>
+                <th width="30%">@game?.name<td /><a style="cursor:pointer" @onclick="ShowModal">Подробности</a></th>
+                <th width="20%" style="text-align:start">@game?.start - @game?.end</th>
+                <th width="20%" style="text-align:start"></th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+
+
+<div class="team-creating">
+    <div class="team-creating_select-players-menu_filters">
+        <select style="width:49%" value="@SelectedClubId" @onchange="FilterByClub">
+            <option value="0">Все команды</option>
+            @if (Clubs != null)
+            {
+                @foreach (var club in Clubs)
+                {
+                    <option value="@club.ClubId">@club.Club.Name</option>
+                }
+            }
+        </select>
+        <select style="width:49%" value="@SelectedPrice" @onchange="FilterByPrice">
+            <option value="15">Максимальная цена</option>
+            @if (Clubs != null)
+            {
+                @for (double i = minPrice; i <= maxPrice; i = i + 0.5)
+                {
+                    <option value="@i">@i</option>
+                }
+            }
+        </select>
+        @if (Positions != null)
+        {
+            <div class="team-creating_select-players-menu_positions-bar">
+                <button @onclick="() => FilterByPosition(0)" class="@(selectedButton == 0 ? "active" : "")">ВСЕ</button>
+                @foreach (var position in Positions)
+                {
+                    <button @onclick="() => FilterByPosition(position.Id)" class="@(selectedButton == position.Id ? "active" : "")">@position.ShortName</button>
+                }
+            </div>
+        }
+        <div class="team-creating_select-players-menu_input-plus-clean">
+            <input @oninput="FilterByName" value="@SelectedName" type="text" style="width:90%" />
+            <button @onclick="CleanFilter" class="btn-close" style="" title="Сбросить фильтр"></button>
+        </div>
+    </div>
+    <div></div>
+    <div class="team-creating_select-players-menu">
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Позиция</th>
+                        <th colspan="2">Игрок</th>
+                        <th>Стоимость</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (players != null)
+                    {
+                        foreach (var player in players)
+                        {
+                            <tr @onclick="()=>AddPlayerToSquad(player)">
+                                <td width="10%"></td>
+                                <td style="text-align:center"> @player.Position.ShortName</td>
+                                <td style="text-align:center"><img src="@player.Club.Image.FilePath" alt="lol"/></td>
+                                <td> @player.Player.Name[0]. @player.Player.Surname</td>
+                                <td style="text-align:center">@player.Price</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="team-creating_squad">
+        @if (game?.Rules != null && Squad != null)
+        {
+            <div class="team-creating_squad_line" style="grid-template-columns: repeat(@game.Rules.GkCount, 7%);">
+                @foreach (var gk in Squad.GoalKeepers)
+                {
+                    <div class="line_player">
+                        @if (gk.Id != 0)
+                        {
+                            <div class="line_player_tools">
+                                <button @onclick="CleanFilter" style="margin-right: auto;" class="btn-close" title="Информация о игроке"></button>
+                                <button @onclick="()=>RemovePlayerFromSquad(gk)" style="margin-left: auto;" class="btn-close" title="Убрать из состава"></button>
+                            </div>
+                        }
+                        <div @onclick="() => FilterByPosition(1)" class="line_player_image-container"><img src="@gk.ImagePath" /></div>
+                        @if (gk.Id == 0)
+                        {
+                            
+                            <div>ВРТ</div>
+                        }
+                        else
+                        {
+                            <div>@gk.Surname</div>
+                        }
+                        <div>@gk.Price</div>
+                    </div>
+                }
+            </div>
+            <div class="team-creating_squad_line" style="grid-template-columns: repeat(@game.Rules.DefCount, 7%);">
+                @foreach (var df in Squad.Defenders)
+                {
+                    <div class="line_player">
+                        @if (df.Id != 0)
+                        {
+                            <div class="line_player_tools">
+                                <button @onclick="()=>RemovePlayerFromSquad(df)" style="margin-left: auto;" class="btn-close" title="Убрать из состава"></button>
+                            </div>
+                        }
+                        <div @onclick="() => FilterByPosition(2)" class="line_player_image-container"><img src="@df.ImagePath" /></div>
+                        @if (df.Id == 0)
+                        {
+                            <div>ЗАЩ</div>
+                        }
+                        else
+                        {
+                            <div>@df.Surname</div>
+                        }
+                        <div>@df.Price</div>
+                    </div>
+                }
+            </div>
+            <div class="team-creating_squad_line" style="grid-template-columns: repeat(@game.Rules.MidCount, 7%);">
+                @foreach (var md in Squad.Midfilders)
+                {
+                    <div class="line_player">
+                        @if (md.Id != 0)
+                        {
+                            <div class="line_player_tools">
+                                <button @onclick="CleanFilter" style="margin-right: auto;" class="btn-close" title="Информация о игроке"></button>
+                                <button @onclick="()=>RemovePlayerFromSquad(md)" style="margin-left: auto;" class="btn-close" title="Убрать из состава"></button>
+                            </div>
+                        }
+                        <div @onclick="() => FilterByPosition(3)" class="line_player_image-container"><img src="@md.ImagePath" /></div>
+                        @if (md.Id == 0)
+                        {
+                            <div>ПЗЩ</div>
+                        }
+                        else
+                        {
+                            <div>@md.Surname</div>
+                        }
+                        <div>@md.Price</div>
+                    </div>
+                }
+            </div>
+            <div class="team-creating_squad_line" style="grid-template-columns: repeat(@game.Rules.FwdCount, 7%);">
+                @foreach (var fwd in Squad.Forwards)
+                {
+                    <div class="line_player">
+                        @if (fwd.Id != 0)
+                        {
+                            <div class="line_player_tools">
+                                <button @onclick="CleanFilter" style="margin-right: auto;" class="btn-close" title="Информация о игроке"></button>
+                                <button @onclick="()=>RemovePlayerFromSquad(fwd)" style="margin-left: auto;" class="btn-close" title="Убрать из состава"></button>
+                            </div>
+                        }
+                        <div @onclick="@(fwd.Id == 0 ? () => FilterByPosition(4) : () => FilterByPosition(1))" 
+                            class="line_player_image-container"><img src="@fwd.ImagePath" />
+                        </div>
+                        @if (fwd.Id == 0)
+                        {
+                            <div>НАП</div>
+                        }
+                        else
+                        {
+                            <div>@fwd.Surname</div>
+                        }
+
+                        <div>@fwd.Price</div>
+                    </div>
+                }
+            </div>
+@*             @if (game?.Rules.BenchCount > 0)
+            {
+                <div class="team-creating_squad_line" style="grid-template-columns: repeat(@game.Rules.BenchCount, 10%);">
+                    @for (int i = 1; i <= game.Rules.BenchCount; i++)
+                    {
+                        <div class="line_player">SUB</div>
+                    }
+                </div>
+            } *@
+        }
+    </div>
+</div>
+
+
+@* Модальное окно "Подробности" *@
+<ModalWindow Title="" IsVisible="isModalVisible" OnClose="OnModalClose">
+    <HeaderContent>
+        <h1 @onclick="ShowMainInfo">Основная информация</h1>
+        <h1 @onclick="ShowRules">Правила</h1>
+        <h1 @onclick="ShowPoints">Начисление очков</h1>
+    </HeaderContent>
+    <ChildContent>
+        @if (showMainInfo)
+        {
+            <table class="details_info">
+                <tbody>
+                    <tr>
+                        <td width="40%">Название</td>
+                        <td width="60%" style="text-align:start">@game?.name</td>
+                    </tr>
+                    <tr>
+                        <td width="40%">Дата начала</td>
+                        <td width="60%" style="text-align:start">@game?.start</td>
+                    </tr>
+                    <tr>
+                        <td width="40%">Дата завершения</td>
+                        <td width="60%" style="text-align:start">@game?.end</td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+        else if (showRules)
+        {
+            <table class="details_info">
+                <tbody>
+                    <tr>
+                        <td width="40%">Количество человек в команде</td>
+                        <td width="60%" style="text-align:start">@gameRules?.TeamCount</td>
+                    </tr>
+                    <tr>
+                        <td width="40%">Максимальное количество игроков из одного клуба</td>
+                        <td width="60%" style="text-align:start">@gameRules?.OneClubPlayersCount</td>
+                    </tr>
+                    <tr>
+                        <td width="40%">Количество трансферов в каждом туре</td>
+                        <td width="60%" style="text-align:start">@gameRules?.GwTransfers</td>
+                    </tr>
+                    <tr>
+                        <td width="40%">Максимальное количество накопленных трансферов</td>
+                        <td width="60%" style="text-align:start">@gameRules?.MaxTransfers</td>
+                    </tr>
+                    <tr>
+                        <td width="40%">Количество игроков на скамейке запасных</td>
+                        <td width="60%" style="text-align:start">@gameRules?.BenchCount</td>
+                    </tr>
+                    <tr>
+                        <td width="40%">Стоимость трансфера</td>
+                        <td width="60%" style="text-align:start">4 очка</td>
+                    </tr>
+                    <tr>
+                        <td width="40%">Максимальное количество команд пользователя</td>
+                        <td width="60%" style="text-align:start">@gameRules?.MaxUserTeams</td>
+                    </tr>
+                    <tr>
+                        <td width="40%">Стартовый баланс</td>
+                        <td width="60%" style="text-align:start">@gameRules?.StartBalance</td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <table class="details_point-info">
+                <thead>
+                    <tr>
+                        <th>Действие</th>
+                        <th>Вратарь</th>
+                        <th>Защитник</th>
+                        <th>Полузащитник</th>
+                        <th>Нападающий</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var action in gameActions)
+                    {
+                        <tr>
+                            <td>@Actions.First(i => i.Id == action).Name</td>
+                            <td>@gamePoints.First(i => i.ActionnId == action && i.PositionId == 1).Point</td>
+                            <td>@gamePoints.First(i => i.ActionnId == action && i.PositionId == 2).Point</td>
+                            <td>@gamePoints.First(i => i.ActionnId == action && i.PositionId == 3).Point</td>
+                            <td>@gamePoints.First(i => i.ActionnId == action && i.PositionId == 4).Point</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </ChildContent>
+    <FooterContent>
+        <button class="btn btn-primary" @onclick="CloseModal">Закрыть</button>
+    </FooterContent>
+</ModalWindow>
+@code {
+    [Parameter]
+    public int GameId { get; set; }
+    private Game game = new Game();
+    private List<GameClubs> Clubs { get; set; } = null!;
+    private Rules? gameRules = new Rules();
+    private List<Actionn> Actions { get; set; } = null!;
+    private List<Points> gamePoints { get; set; } = null!;
+    private List<int> gameActions { get; set; } = null!;
+    private bool showMainInfo = true;
+    private bool showRules = false;
+    private bool showPoints = false;
+    private List<GameWeekPlayer> players { get; set; } = null!;
+    private GameWeek gameWeek = new GameWeek();
+    private double minPrice;
+    private double maxPrice;
+    private int SelectedClubId = 0;
+    private int SelectedPositionId = 0;
+    private double SelectedPrice = 15.0;
+    private string SelectedName = null;
+    private List<Position> Positions { get; set; } = null!;
+    private int selectedButton = 0;
+
+    protected override async Task OnInitializedAsync()
+
+    {
+        game = await context.games.Include(g=>g.Image).Include(g=>g.Rules).FirstOrDefaultAsync(g => g.id == GameId);
+        if (game == null)
+        {
+            Console.WriteLine("Game not found.");
+            return;
+        }
+        gameWeek = await context.gameWeeks.FirstOrDefaultAsync(gw => gw.GameId == game.id && gw.Completed == null);
+        players = await context.gameWeekPlayers.Where(p => p.GameWeekId == gameWeek.Id).Include(p=>p.Player).Include(p=>p.Position).Include(p=>p.Club).ThenInclude(c=>c.Image).OrderByDescending(p=>p.Price).AsNoTracking().ToListAsync();
+        Actions = await context.actions.AsNoTracking().ToListAsync();
+        if (players != null)
+        {
+            minPrice = players.MinBy(p => p.Price).Price;
+            minPrice -= minPrice % 1;
+            maxPrice = players.MaxBy(p => p.Price).Price;
+        }
+        Clubs = await context.gameClubs.Where(x => x.GameId == game.id).Include(c => c.Club).AsNoTracking().ToListAsync();
+        Positions = await context.positions.AsNoTracking().ToListAsync();
+        showMainInfo = true;
+        showRules = false;
+        showPoints = false;
+        for (int i = 0; i < game.Rules.GkCount; i++)
+        {
+            Squad.GoalKeepers.Add(new Footballer { Id = 0, PositionId = 1, ImagePath = "/Images/Icons/plus_Icon.png" });
+        }
+        for (int i = 0; i < game.Rules.DefCount; i++)
+        {
+            Squad.Defenders.Add(new Footballer { Id = 0, PositionId = 2, ImagePath = "/Images/Icons/plus_Icon.png" });
+        }
+        for (int i = 0; i < game.Rules.MidCount; i++)
+        {
+            Squad.Midfilders.Add(new Footballer { Id = 0, PositionId = 3, ImagePath = "/Images/Icons/plus_Icon.png" });
+        }
+        for (int i = 0; i < game.Rules.FwdCount; i++)
+        {
+            Squad.Forwards.Add(new Footballer { Id = 0, PositionId = 4, ImagePath = "/Images/Icons/plus_Icon.png"});
+        }
+    }
+
+    private void ShowMainInfo()
+    {
+        showMainInfo = true;
+        showRules = false;
+        showPoints = false;
+        StateHasChanged();
+    }
+    private void ShowRules()
+    {
+        showMainInfo = false;
+        showRules = true;
+        showPoints = false;
+        StateHasChanged();
+    }
+    private void ShowPoints()
+    {
+        showMainInfo = false;
+        showRules = false;
+        showPoints = true;
+        StateHasChanged();
+    }
+
+    private bool isModalVisible = false;
+
+    private void ShowModal()
+    {
+        isModalVisible = true;
+        gameRules = context.rules.Find(game.id);
+        gamePoints = context.points.Where(i => i.GameId == game.id).OrderBy(i => i.ActionnId).AsNoTracking().ToList();
+        gameActions = gamePoints.Select(i => i.ActionnId).Distinct().ToList();
+    }
+
+    private void CloseModal()
+    {
+        isModalVisible = false;
+    }
+
+    private void OnModalClose(bool visible)
+    {
+        isModalVisible = visible;
+    }
+
+
+    private async Task FilterByClub(ChangeEventArgs e)
+    {
+        SelectedClubId = int.Parse(e.Value.ToString());
+        await ApplyFilters();
+    }
+    private async Task FilterByPosition(int position)
+    {
+        SelectedPositionId = position;
+        selectedButton = position;
+        await ApplyFilters();
+    }
+    private async Task FilterByPrice(ChangeEventArgs e)
+    {
+        SelectedPrice = double.Parse(e.Value.ToString());
+        await ApplyFilters();
+    }
+    private async Task FilterByName(ChangeEventArgs e)
+    {
+        SelectedName = e.Value.ToString();
+        await ApplyFilters();
+    }
+    private async Task CleanFilter()
+    {
+        SelectedPrice = 15;
+        SelectedPositionId = 0;
+        selectedButton = 0;
+        SelectedClubId = 0;
+        SelectedName = null;
+        await ApplyFilters();
+    }
+    private async Task ApplyFilters()
+    {
+        var query = context.gameWeekPlayers
+            .Where(p => p.GameWeekId == gameWeek.Id)
+            .Include(p => p.Player)
+            .Include(p => p.Position)
+            .Include(p => p.Club)
+            .ThenInclude(c => c.Image)
+            .AsQueryable();
+
+        if (SelectedClubId != 0)
+        {
+            query = query.Where(p => p.ClubId == SelectedClubId);
+        }
+
+        if (SelectedPositionId != 0)
+        {
+            query = query.Where(p => p.PositionId == SelectedPositionId);
+        }
+        if (SelectedName != null)
+        {
+            query = query.Where(p => p.Player.Surname.Contains(SelectedName));
+        }
+
+        players = await query.Where(p=>p.Price <= SelectedPrice).OrderByDescending(p => p.Price).AsNoTracking().ToListAsync();
+        StateHasChanged();
+    }
+    //Логика работы составления состава
+    private SquadForm Squad = new SquadForm();
+
+    private void AddPlayerToSquad(GameWeekPlayer player)
+    {
+        switch (player.PositionId)
+        {
+            case 1:
+                AddToPositionList(Squad.GoalKeepers, player);
+                break;
+            case 2:
+                AddToPositionList(Squad.Defenders, player);
+                break;
+            case 3:
+                AddToPositionList(Squad.Midfilders, player);
+                break;
+            case 4:
+                AddToPositionList(Squad.Forwards, player);
+                break;
+            default:
+                Console.WriteLine("Неизвестная позиция игрока.");
+                break;
+        }
+
+        StateHasChanged();
+    }
+
+    private void AddToPositionList(List<Footballer> positionList, GameWeekPlayer player)
+    {
+        var emptySpot = positionList.FirstOrDefault(p => p.Id == 0);
+
+        if (emptySpot != null)
+        {
+            emptySpot.Id = player.PlayerId;
+            emptySpot.PositionId = player.PositionId;
+            emptySpot.ImagePath = player.Club.Image.FilePath;
+            emptySpot.Price = player.Price;
+            emptySpot.Name = player.Player.Name;
+            emptySpot.Surname = player.Player.Surname;
+            emptySpot.PositionId = player.PositionId;
+            emptySpot.ClubId = player.ClubId;
+        }
+    }
+    private void RemovePlayerFromSquad(Footballer player)
+    {
+        switch (player.PositionId)
+        {
+            case 1:
+                RemoveFromPositionList(Squad.GoalKeepers, player);
+                break;
+            case 2:
+                RemoveFromPositionList(Squad.Defenders, player);
+                break;
+            case 3:
+                RemoveFromPositionList(Squad.Midfilders, player);
+                break;
+            case 4:
+                RemoveFromPositionList(Squad.Forwards, player);
+                break;
+            default:
+                Console.WriteLine("Неизвестная позиция игрока.");
+                break;
+        }
+
+        StateHasChanged();
+    }
+
+    private void RemoveFromPositionList(List<Footballer> positionList, Footballer player)
+    {
+        var playerToRemove = positionList.FirstOrDefault(p => p.Id == player.Id);
+
+        if (playerToRemove != null)
+        {
+            // Заменяем игрока на пустого
+            playerToRemove.Id = 0;
+            playerToRemove.PositionId = player.PositionId;
+            playerToRemove.ImagePath = "/Images/Icons/plus_Icon.png";
+            playerToRemove.Price = null;
+            playerToRemove.Name = null;
+            playerToRemove.Surname = null;
+            playerToRemove.ClubId = null;
+        }
+    }
+}

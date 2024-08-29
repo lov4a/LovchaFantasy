@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>aspnet-LovchaFantasy-028de45b-94bd-4105-a8e6-6f12e09eac5d</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Models\Новая папка\**" />
+    <Compile Remove="Pages\Новая папка\**" />
+    <Compile Remove="wwwroot\css\bootstrap\**" />
+    <Compile Remove="wwwroot\css\open-iconic\**" />
+    <Content Remove="Models\Новая папка\**" />
+    <Content Remove="Pages\Новая папка\**" />
+    <Content Remove="wwwroot\css\bootstrap\**" />
+    <Content Remove="wwwroot\css\open-iconic\**" />
+    <EmbeddedResource Remove="Models\Новая папка\**" />
+    <EmbeddedResource Remove="Pages\Новая папка\**" />
+    <EmbeddedResource Remove="wwwroot\css\bootstrap\**" />
+    <EmbeddedResource Remove="wwwroot\css\open-iconic\**" />
+    <None Remove="Models\Новая папка\**" />
+    <None Remove="Pages\Новая папка\**" />
+    <None Remove="wwwroot\css\bootstrap\**" />
+    <None Remove="wwwroot\css\open-iconic\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\Images\Games\08e27104-2b0e-482c-b271-4d02ac02160d.jpg" />
+    <Content Remove="wwwroot\Images\Games\Altai.png" />
+    <Content Remove="wwwroot\Images\Games\DktQI2cruawNWCrHkapR-AZ2aaJEumGjbs9VMWQqpn7BYOG8j--3scuPV4JANeuKkni_fTAj7kYEg1HA7dBg2ebG_preview_rev_1.png" />
+    <Content Remove="wwwroot\Images\Games\f4958dc0-7ac8-471f-adac-c42d0388bf52.jpg" />
+    <Content Remove="wwwroot\Images\Games\newsytz3kofp7n %281%29.png" />
+    <Content Remove="wwwroot\Images\Games\Спартак.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.29" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.29" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.29" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.29">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.29" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.29" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.10" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.29" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\Projects\LovchaFantasy\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="D:\Projects\LovchaFantasy\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Context\Migrations\" />
+    <Folder Include="wwwroot\Images\Games\" />
+  </ItemGroup>
+
+</Project>
