@@ -367,7 +367,7 @@
         isModalVisible = visible;
     }
 
-    //Модальное окно потребностей игры
+    //Модальное окно подробностей игры
     private bool isSecondModalVisible = false;
 
     private void ShowSecondModal(int id)
@@ -446,18 +446,13 @@
             {
                 var fileName = Path.GetFileName(imageFile.Name);
                 var filePath = Path.Combine("wwwroot", "Images", "Games", fileName);
-
-                // Создаем папку, если она не существует
                 var directoryPath = Path.GetDirectoryName(filePath);
                 if (directoryPath != null && !Directory.Exists(directoryPath))
                 {
                     Directory.CreateDirectory(directoryPath);
                 }
-
-                // Открываем поток для чтения файла
                 using (var stream = imageFile.OpenReadStream())
                 {
-                    // Открываем поток для записи файла
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         await stream.CopyToAsync(fileStream);

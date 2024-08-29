@@ -43,13 +43,12 @@ namespace LovchaFantasy.Context
 
                 entity.Property(e => e.imageId).IsRequired();
                 entity.HasOne(e => e.Image)
-                      .WithMany() // Здесь у Image нет коллекции Game, можно оставить пустым
+                      .WithMany()
                       .HasForeignKey(e => e.imageId)
-                      .OnDelete(DeleteBehavior.Restrict); // Не каскадное удаление для Image
+                      .OnDelete(DeleteBehavior.Restrict);
 
-                // Каскадное удаление для Game
                 entity.HasOne(e => e.Image)
-                      .WithMany() // Если у Image есть коллекция Game, ее можно указать здесь
+                      .WithMany() 
                       .HasForeignKey(e => e.imageId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
