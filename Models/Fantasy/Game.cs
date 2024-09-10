@@ -20,6 +20,7 @@ namespace LovchaFantasy.Models.Fantasy
             Leagues = new HashSet<League>();
             UserTeams = new HashSet<UserTeam>();
             GameClubs = new HashSet<GameClubs>();
+            PositionCountRules = new HashSet<PositionCountRules>();
         }
         public Game(int id, string name, DateOnly start, DateOnly end, int ImageId)
         {
@@ -58,6 +59,7 @@ namespace LovchaFantasy.Models.Fantasy
         public ICollection<League> Leagues { get; set; }
         public ICollection<UserTeam> UserTeams { get; set; }
         public ICollection<GameClubs> GameClubs { get; set; }
+        public ICollection<PositionCountRules> PositionCountRules { get; set; }
     }
 
 }

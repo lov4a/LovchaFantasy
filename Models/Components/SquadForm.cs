@@ -1,21 +1,12 @@
-﻿namespace LovchaFantasy.Models.Components
+﻿using LovchaFantasy.Context.Migrations;
+
+namespace LovchaFantasy.Models.Components
 {
     public class SquadForm
     {
-        public List<Footballer> GoalKeepers { get; set; } = new List<Footballer>();
-        public List<Footballer> Defenders { get; set; } = new List<Footballer>();
-        public List<Footballer> Midfilders{ get; set; } = new List<Footballer>();
-        public List<Footballer> Forwards { get; set; } = new List<Footballer>();
-        public List<Footballer> FullSquad
-        {
-            get
-            {
-                return GoalKeepers.Concat(Defenders)
-                                  .Concat(Midfilders)
-                                  .Concat(Forwards)
-                                  .ToList();
-            }
-        }
+        public List<Footballer> TeamPlayers { get; set; }  = new List<Footballer>();
+        public Dictionary<int, int> OneTeamPlayers = new Dictionary<int, int>();
+        public Dictionary<int, int> OnePositionPlayers = new Dictionary<int, int>();
 
     }
     public class Footballer

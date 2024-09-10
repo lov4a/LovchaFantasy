@@ -4,6 +4,7 @@
     grid-auto-rows: auto;
     grid-template-columns: 24% 73%;
     grid-gap: 1%;
+    border: 1px solid lightgray;
 }
 .game-head{
     width:100%;
@@ -24,6 +25,9 @@
 .team-creating_select-players-menu table{
     width:100%;
 }
+    .team-creating_select-players-menu table tr {
+        cursor:pointer;
+    }
     .team-creating_select-players-menu table td {
         border: 1px solid lightgray;
         background-color: #0b4200;
@@ -32,7 +36,7 @@
     }
     .team-creating_select-players-menu table td {
         border: 1px solid lightgray;
-        background-color: #0b4200;
+        background-color: #4b4b4b;
         color: white;
     }
     .team-creating_select-players-menu img {
@@ -77,13 +81,13 @@
     background-position-x:center;
 }
 .team-creating_squad_line {
-        display: grid;
-        width: 100%;
-        margin-top: 5%;
-        grid-gap: 5%;
-        justify-content: center;
-        align-items: center;
-    }
+    display: grid;
+    width: 100%;
+    margin-top: 5%;
+    grid-gap: 5%;
+    justify-content: center;
+    align-items: center;
+}
     .team-creating_squad_line:first-child{
         margin-top: 5%;
     }
@@ -111,4 +115,11 @@
     display:flex;
     background-color:white;
     border-radius: 5px;
+}
+.disable {
+    filter:brightness(50%);
+    cursor:not-allowed !important;
+}
+.choosen td {
+    background-color:#117e00 !important;
 }

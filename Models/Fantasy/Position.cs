@@ -8,11 +8,13 @@
         public Position() {
             Points = new HashSet<Points>();
             GameWeekPlayers = new HashSet<GameWeekPlayer>();
+            PositionCountRules = new HashSet<PositionCountRules>();
         }
         public Position(int id, string name, string shortName) { Id = id; Name = name; ShortName = shortName; }
         public void setName(string name) { Name = name; }
         public void setShortName(string shortName) { ShortName = shortName; }
         public ICollection<Points> Points { get; set; }
         public ICollection<GameWeekPlayer> GameWeekPlayers { get; set; }
+        public ICollection<PositionCountRules> PositionCountRules { get; set; }
     }
 }

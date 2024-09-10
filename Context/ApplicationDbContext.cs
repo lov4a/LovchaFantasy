@@ -24,6 +24,7 @@ namespace LovchaFantasy.Context
         public DbSet<Player> players { get; set; } = null!;
         public DbSet<GameWeekPlayer> gameWeekPlayers { get; set; } = null!;
         public DbSet<GameClubs> gameClubs { get; set; } = null!;
+        public DbSet<PositionCountRules> positionCountRules { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -168,6 +169,21 @@ namespace LovchaFantasy.Context
                 entity.HasOne(gc => gc.Club)
                       .WithMany(ut => ut.GameClubs)
                       .HasForeignKey(ut => ut.ClubId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<PositionCountRules>(entity =>
+            {
+                entity.HasKey(pcr=> new {pcr.GameId, pcr.PositionId});
+
+                entity.HasOne(pcr => pcr.Game)
+                      .WithMany(pcr => pcr.PositionCountRules)
+                      .HasForeignKey(pcr => pcr.GameId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(pcr => pcr.Position)
+                      .WithMany(pcr => pcr.PositionCountRules)
+                      .HasForeignKey(pcr => pcr.PositionId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
         }

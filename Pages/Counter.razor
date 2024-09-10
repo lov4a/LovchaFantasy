@@ -50,15 +50,11 @@
                     <label class="form-label">Максимальное количество команд пользователя</label>
                     <input @bind="@gameForm.StartBalance" type="number" class="form-control" autocomplete="" aria-required="true" />
                     <label class="form-label">Стартовый баланс</label>
-                    <input @bind="@gameForm.GkCount" type="number" class="form-control" autocomplete="" aria-required="true" />
-                    <label class="form-label">Количество Вратраей в команде</label>
-                    <input @bind="@gameForm.DefCount" type="number" class="form-control" autocomplete="" aria-required="true" />
-                    <label class="form-label">Количество Защитников в команде</label>
-                    <input @bind="@gameForm.MidCount" type="number" class="form-control" autocomplete="" aria-required="true" />
-                    <label class="form-label">Количество Полузащитников в команде</label>
-                    <input @bind="@gameForm.FwdCount" type="number" class="form-control" autocomplete="" aria-required="true" />
-                    <label class="form-label">Количество Нападающих в команде</label>
-                    <input @bind="@gameForm.StartUpGkCount" type="number" class="form-control" autocomplete="" aria-required="true" />
+                    @foreach(var x in gameForm.PositionRules)
+                    {
+                        <input @bind="@x.Count" type="number" class="form-control" autocomplete="" aria-required="true" />
+                        <label class="form-label">Количество @Positions.FirstOrDefault(p => p.Id == x.PositionId)?.ShortName в команде</label>
+                    }
                     <label class="form-label">Количество Вратраей в стартовом составе</label>
                     <input @bind="@gameForm.StartUpDefCount" type="number" class="form-control" autocomplete="" aria-required="true" />
                     <label class="form-label">Количество Защитников в стартовом составе</label>
@@ -269,6 +265,8 @@
     private List<Points> gamePoints { get; set; } = null!;
     private List<int> gameActions { get; set; } = null!;
 
+    private List<PositionCountRules> PositionCountRules { get; set; } = null!;
+
     private bool showMainInfo = true;
     private bool showRules = false;
     private bool showPoints = false;
@@ -295,7 +293,7 @@
             await context.SaveChangesAsync();
 
             var rules = new Rules(game.id,gameForm.TeamCount,gameForm.OneClubPlayers,gameForm.GwTransfers,gameForm.MaxTransfrs,gameForm.Bench,
-                gameForm.MaxUserTeams,gameForm.StartBalance, gameForm.GkCount, gameForm.DefCount, gameForm.MidCount, gameForm.FwdCount,
+                gameForm.MaxUserTeams,gameForm.StartBalance,
                 gameForm.StartUpGkCount, gameForm.StartUpDefCount, gameForm.StartUpMidCount, gameForm.StartUpFwdCount);
             context.rules.Add(rules);
             await context.SaveChangesAsync();
@@ -304,6 +302,11 @@
             {
                 Points points = new Points(game.id,actionScore.ActionId,actionScore.PositionId,actionScore.Score);
                 context.Add(points);
+            }
+            foreach (var posCountRules in gameForm.PositionRules)
+            {
+                PositionCountRules rule = new PositionCountRules(game.id, posCountRules.PositionId, posCountRules.Count);
+                context.positionCountRules.Add(rule);
             }
             await context.SaveChangesAsync();
             isModalVisible = false;
@@ -325,6 +328,11 @@
         showMainInfo = true;
         showRules = false;
         showPoints = false;
+        foreach (var pos in Positions)
+        {
+            var x = new PositionCount { PositionId = pos.Id, Count = 0 };
+            gameForm.PositionRules.Add(x);
+        }
         await ChoseGame(1);
         StateHasChanged();
     }
