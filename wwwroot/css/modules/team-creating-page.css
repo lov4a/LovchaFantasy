@@ -2,9 +2,10 @@
 .team-creating {
     display: grid;
     grid-auto-rows: auto;
-    grid-template-columns: 24% 73%;
-    grid-gap: 1%;
+    grid-template-columns: 25% 75%;
     border: 1px solid lightgray;
+    background: rgb(21,92,4);
+    background: linear-gradient(0deg, rgba(21,92,4,1) 0%, rgba(11,215,7,1) 100%);
 }
 .game-head{
     width:100%;
@@ -30,14 +31,16 @@
     }
     .team-creating_select-players-menu table td {
         border: 1px solid lightgray;
-        background-color: #0b4200;
-        color:white;
-        
-    }
-    .team-creating_select-players-menu table td {
-        border: 1px solid lightgray;
         background-color: #4b4b4b;
         color: white;
+    }
+    .team-creating_select-players-menu table th {
+        border: 1px solid lightgray;
+        background-color: black;
+        color: white;
+    }
+    .team-creating_select-players-menu table td:first-child, th:first-child {
+        border-left: none;
     }
     .team-creating_select-players-menu img {
         max-width:40px;
@@ -69,9 +72,8 @@
         background-color:white;
     }
 .team-creating_select-players-menu_filters {
-    background-color: #0b4200;
-    margin-bottom:2%;
-    padding:1%;
+    background-color: #4b4b4b;
+    padding: 1%;
 }
 .team-creating_squad {
     width: 100%;
@@ -83,7 +85,7 @@
 .team-creating_squad_line {
     display: grid;
     width: 100%;
-    margin-top: 5%;
+    margin-top: 3%;
     grid-gap: 5%;
     justify-content: center;
     align-items: center;
@@ -122,4 +124,39 @@
 }
 .choosen td {
     background-color:#117e00 !important;
+}
+
+.team-creating_squad-info {
+    border-bottom: 1px solid lightgray;
+    background-color: black;
+
+}
+    .team-creating_squad-info h1 {
+        width: 100%;
+        text-align: center;
+        font-size: calc( (100vw - 320px)/(2000 - 320) * (25 - 14) + 14px);
+        border-bottom: 1px solid black;
+        background-color:white;
+    }
+    .team-creating_squad-info P {
+        color:white;
+        margin-bottom:0;
+    }
+    .team-creating_squad-info_bar {
+        border-radius: 8px;
+        margin-left: 10%;
+        text-align:center;
+    }
+    .team-creating_squad-info_allbars {
+        display: grid;
+        grid-template-columns: 10% 10% 10% 70%;
+        align-items:center;
+        height:50%;
+    }
+.team-creating_select-players-menu_pagination {
+    display: grid;
+    grid-template-columns: 10% 10% 20% 10% 10%;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }

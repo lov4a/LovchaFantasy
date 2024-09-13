@@ -54,6 +54,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\Images\Icons\info.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="D:\Projects\LovchaFantasy\.editorconfig" />
   </ItemGroup>
 

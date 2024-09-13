@@ -1,8 +1,8 @@
 ﻿@* ModalWindow.razor *@
 @if (IsVisible)
 {
-    <div class="modal-backdrop">
-        <div class="modalWindow" @onclick:stopPropagation="true">
+    <div class="modal-backdrop" >
+        <div class="modalWindow" style="width:@Width;" @onclick:stopPropagation="true">
             <div class="modal-header">
                 <h5 class="modal-title">@Title</h5>
                 <div class="modal-header_menu">@HeaderContent</div>
@@ -25,6 +25,7 @@
     [Parameter] public RenderFragment? FooterContent { get; set; }
     [Parameter] public bool IsVisible { get; set; }
     [Parameter] public EventCallback<bool> OnClose { get; set; }
+    [Parameter] public string Width { get; set; } = "70%";
 
     private void Close()
     {
@@ -52,7 +53,7 @@
         padding: 20px;
         border-radius: 5px;
         width: 70%;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Добавьте тень */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
     .modalWindow h3{
         font-size: 17px;

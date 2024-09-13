@@ -7,6 +7,7 @@ namespace LovchaFantasy.Models.Components
         public List<Footballer> TeamPlayers { get; set; }  = new List<Footballer>();
         public Dictionary<int, int> OneTeamPlayers = new Dictionary<int, int>();
         public Dictionary<int, int> OnePositionPlayers = new Dictionary<int, int>();
+        public double TeamCost { get; set; }
 
     }
     public class Footballer

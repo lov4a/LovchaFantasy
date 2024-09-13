@@ -63,7 +63,28 @@
             <button @onclick="CleanFilter" class="btn-close" style="" title="Сбросить фильтр"></button>
         </div>
     </div>
-    <div></div>
+
+    <div class="team-creating_squad-info">
+        <h1>Ваша команда</h1>
+        <div class="team-creating_squad-info_allbars">
+            <div class="team-creating_squad-info_bar" style="background-color:@(@Squad.TeamCost <= gameRules?.StartBalance ? "green" : "red")">
+                <p>@Squad.TeamCost / @gameRules?.StartBalance M</p>
+            </div>
+            <div class="team-creating_squad-info_bar" style="background-color:@(Squad.TeamPlayers.Where(tp => tp.Id != 0).Count() == gameRules?.TeamCount ? "green" : "red")">
+                <p>@Squad.TeamPlayers.Where(tp => tp.Id != 0).Count() / @gameRules?.TeamCount Игроков</p>
+            </div>
+            <div>
+                <button @onclick="CleanSquad" class="btn-close" style="background-color:white; border-radius:10px;margin-left:3%;" title="Очистить состав" alt="Очистить состав"></button>
+            </div>
+            @if (Squad.TeamPlayers.Where(tp => tp.Id != 0).Count() == gameRules?.TeamCount)
+            {
+                <div style="text-align:start">
+                    <button @onclick="ShowAcceptModal" class="team-creating_squad-info_bar" style="background-color:yellow; margin-left:14%; color:black; font-weight:bold" title="Очистить состав" alt="ПОГНАЛИ!">Зарегистрировать комнаду</button>
+                </div>
+            }
+        </div>
+    </div>
+
     <div class="team-creating_select-players-menu">
         <div>
             <table>
@@ -78,23 +99,42 @@
                 <tbody>
                     @if (players != null)
                     {
-                        foreach (var player in players)
+                        foreach (var player in players.Skip(12*(pagination.Page-1)).Take(12))
                         {
                             bool isDisable = Squad.OneTeamPlayers[player.ClubId.GetValueOrDefault()] >= gameRules?.OneClubPlayersCount
                             || Squad.TeamPlayers.Where(tp => tp.PositionId == player.PositionId && tp.Id != 0).Count()
-                            >= positionCountRules.FirstOrDefault(pcr => pcr.PositionId == player.PositionId).MaxCount;
+                            >= positionCountRules.FirstOrDefault(pcr => pcr.PositionId == player.PositionId).MaxCount || player.Price > gameRules.StartBalance - Squad.TeamCost;
 
                             bool isChoosen = Squad.TeamPlayers.FirstOrDefault(tp => tp.Id == player.PlayerId) != null;
-                            <tr @onclick="() => HandlePlayerAction(player, isDisable, isChoosen)"
-                                class="@(isChoosen ? "choosen" : isDisable ? "disable" : "")">
-                                <td width="10%"></td>
-                                <td style="text-align:center"> @player.Position.ShortName</td>
-                                <td style="text-align:center"><img src="@player.Club.Image.FilePath" alt="lol"/></td>
-                                <td> @player.Player.Name[0]. @player.Player.Surname</td>
-                                <td style="text-align:center">@player.Price</td>
+                            <tr class="@(isChoosen ? "choosen" : isDisable ? "disable" : "")">
+                                <td style="text-align:-webkit-center" width="10%"><div class="icon">i</div></td>
+                                <td @onclick="() => HandlePlayerAction(player, isDisable, isChoosen)"
+                                     style="text-align:center"> @player.Position.ShortName
+                                </td>
+                                <td @onclick="() => HandlePlayerAction(player, isDisable, isChoosen)"
+                                    style="text-align:center">
+                                    <img src="@player.Club?.Image.FilePath" alt="@player.Club?.Name[0]" />
+                                </td>
+                                <td @onclick="() => HandlePlayerAction(player, isDisable, isChoosen)">
+                                    @player.Player.Name[0]. @player.Player.Surname
+                                </td>
+                                <td @onclick="() => HandlePlayerAction(player, isDisable, isChoosen)" style="text-align:center">
+                                    @player.Price
+                                </td>
                             </tr>
                         }
                     }
+                    <tr>
+                        <td colspan="5">
+                            <div class="team-creating_select-players-menu_pagination">
+                                <button @onclick="() => pagination.setPage(1)"> &lt;&lt; </button>
+                                <button @onclick="pagination.Prev"> &lt; </button>
+                                <div style="text-align:center">@pagination.Page/@pagination.TotalPages</div>
+                                <button @onclick="pagination.Next"> &gt; </button>
+                                <button @onclick="() => pagination.setPage(pagination.TotalPages)"> &gt;&gt; </button>
+                            </div>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -113,8 +153,14 @@
                                 @if (footballer.Id != 0)
                                 {
                                     <div class="line_player_tools">
-                                        <button @onclick="CleanFilter" style="margin-right: auto;" class="btn-close" title="Информация о игроке"></button>
+                                        <div class="icon" title="Информация о игроке" style="color:black; border-color:black;width:25%">i</div>
                                         <button @onclick="()=>RemovePlayer(footballer)" style="margin-left: auto;" class="btn-close" title="Убрать из состава"></button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="line_player_tools">
+                                        <div><br /></div>
                                     </div>
                                 }
                                 <div @onclick="() => FilterByPosition(position.Id)" class="line_player_image-container"><img src="@footballer.ImagePath" /></div>
@@ -122,10 +168,12 @@
                                 {
 
                                     <div>@position.ShortName</div>
+                                    <div><br /></div>
                                 }
                                 else
                                 {
                                     <div>@footballer.Surname</div>
+                                    
                                 }
                                 <div>@footballer.Price</div>
                             </div>
@@ -234,6 +282,16 @@
         <button class="btn btn-primary" @onclick="CloseModal">Закрыть</button>
     </FooterContent>
 </ModalWindow>
+
+<ModalWindow Title="" Width="auto" IsVisible="isAcceptModalVisible" OnClose="OnAcceptModalClose">
+    <ChildContent>
+        <h2>Вы уверены, что хотите зарегистровать свою команду в турнире?</h2>
+    </ChildContent>
+    <FooterContent>
+        <button class="team-creating_squad-info_bar" @onclick="CloseModal">Да</button>
+        <button class="btn btn-primary" @onclick="CloseAcceptModal">НЕТ</button>
+    </FooterContent>
+</ModalWindow>
 @code {
     [Parameter]
     public int GameId { get; set; }
@@ -257,6 +315,8 @@
     private List<Position> Positions { get; set; } = null!;
     private int selectedButton = 0;
     private List<PositionCountRules> positionCountRules { get; set; } = null!;
+
+    private Pagination pagination = new Pagination();
 
     protected override async Task OnInitializedAsync()
 
@@ -297,6 +357,12 @@
         foreach (var club in Clubs)
         {
             Squad.OneTeamPlayers.Add(club.ClubId, 0);
+        }
+        Squad.TeamCost = 0.0;
+        if (players != null)
+        {
+            pagination.setTotalPages(players.Count(), 12);
+            pagination.setPage(1);
         }
     }
 
@@ -342,6 +408,21 @@
         isModalVisible = visible;
     }
 
+    private bool isAcceptModalVisible = false;
+
+    private void ShowAcceptModal()
+    {
+        isAcceptModalVisible = true;
+    }
+
+    private void CloseAcceptModal()
+    {
+        isAcceptModalVisible = false;
+    }
+    private void OnAcceptModalClose(bool visible)
+    {
+        isAcceptModalVisible = visible;
+    }
 
     private async Task FilterByClub(ChangeEventArgs e)
     {
@@ -398,6 +479,11 @@
         }
 
         players = await query.Where(p=>p.Price <= SelectedPrice).OrderByDescending(p => p.Price).AsNoTracking().ToListAsync();
+        if (players != null)
+        {
+            pagination.setTotalPages(players.Count(), 12);
+            pagination.setPage(1);
+        }
         StateHasChanged();
     }
     //Логика работы составления состава
@@ -419,17 +505,19 @@
             emptySpot.ClubId = player.ClubId;
         }
         Squad.OneTeamPlayers[player.ClubId.GetValueOrDefault()] = Squad.TeamPlayers.Where(i => i.ClubId == player.ClubId).Count();
+        Squad.TeamCost += player.Price;
         StateHasChanged();
     }
 
     private void RemovePlayer(Footballer player)
     {
-        
+
         var playerToRemove = Squad.TeamPlayers.FirstOrDefault(p => p.Id == player.Id);
 
         if (playerToRemove != null)
         {
             Squad.OneTeamPlayers[player.ClubId.GetValueOrDefault()] -= 1;
+            Squad.TeamCost -= player.Price.GetValueOrDefault();
             playerToRemove.Id = 0;
             playerToRemove.PositionId = player.PositionId;
             playerToRemove.ImagePath = "/Images/Icons/plus_Icon.png";
@@ -456,4 +544,25 @@
             }
         }
     }
+    private void CleanSquad()
+    {
+        Squad.TeamCost = 0;
+        foreach (var player in Squad.TeamPlayers.Where(tp => tp.Id != 0))
+        {
+            Squad.OneTeamPlayers[player.ClubId.GetValueOrDefault()] -= 1;
+            player.Id = 0;
+            player.PositionId = player.PositionId;
+            player.ImagePath = "/Images/Icons/plus_Icon.png";
+            player.Price = null;
+            player.Name = null;
+            player.Surname = null;
+            player.ClubId = null;
+        }
+    }
+
+    private void RegisterTeam()
+    {
+        
+    }
+
 }
