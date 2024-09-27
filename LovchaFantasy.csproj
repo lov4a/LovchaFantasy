@@ -33,6 +33,7 @@
     <Content Remove="wwwroot\Images\Games\f4958dc0-7ac8-471f-adac-c42d0388bf52.jpg" />
     <Content Remove="wwwroot\Images\Games\newsytz3kofp7n %281%29.png" />
     <Content Remove="wwwroot\Images\Games\Спартак.png" />
+    <Content Remove="wwwroot\Images\Icons\vicecaptain-band.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -54,6 +55,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\Images\Icons\captain-band.png" />
     <_ContentIncludedByDefault Remove="wwwroot\Images\Icons\info.png" />
   </ItemGroup>
 

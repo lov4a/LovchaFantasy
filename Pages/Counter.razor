@@ -132,10 +132,10 @@
                 {
                     <tr>
                         <td width="10%"><img src="@game.Image.FilePath" alt="@game.Image.FileName" /> </td>
-                        <td width="30%">@game.name</td>
-                        <td width="20%" style="text-align:start">@game.start - @game.end</td>
-                        <td width="20%" style="text-align:start"><a style="cursor:pointer" @onclick="() => ShowSecondModal(game.id)">Подробности</a></td>
-                        <td width="auto" style="text-align:center;"><div><button href="/entry/@game.id" style="padding-left:5%;padding-right:5%"><a href="/entry/@game.id">Играть</a></button><p style="margin:0">(команд 165)</p></div></td>
+                        <td width="30%">@game.Name</td>
+                        <td width="20%" style="text-align:start">@game.Start - @game.End</td>
+                        <td width="20%" style="text-align:start"><a style="cursor:pointer" @onclick="() => ShowSecondModal(game.Id)">Подробности</a></td>
+                        <td width="auto" style="text-align:center;"><div><button href="/entry/@game.Id" style="padding-left:5%;padding-right:5%"><a href="/entry/@game.Id">Играть</a></button><p style="margin:0">(команд 165)</p></div></td>
                     </tr>
                 }
             }
@@ -155,15 +155,15 @@
                 <tbody>
                     <tr>
                         <td width="40%">Название</td>
-                        <td width="60%" style="text-align:start">@selectedGame?.name</td>
+                        <td width="60%" style="text-align:start">@selectedGame?.Name</td>
                     </tr>
                     <tr>
                         <td width="40%">Дата начала</td>
-                        <td width="60%" style="text-align:start">@selectedGame?.start</td>
+                        <td width="60%" style="text-align:start">@selectedGame?.Start</td>
                     </tr>
                     <tr>
                         <td width="40%">Дата завершения</td>
-                        <td width="60%" style="text-align:start">@selectedGame?.end</td>
+                        <td width="60%" style="text-align:start">@selectedGame?.End</td>
                     </tr>
                 </tbody>
             </table>
@@ -282,17 +282,11 @@
             Console.WriteLine(image.Id + image.FileName + image.ContentType + image.FilePath);
             context.images.Add(image);
             await context.SaveChangesAsync();
-            var game = new Game
-            {
-                    name = gameForm.Name,
-                    start = gameForm.Start,
-                    end = gameForm.End,
-                    imageId = image.Id
-            };
+            Game game = new Game(gameForm.Name, gameForm.Start, gameForm.End, image.Id);
             context.games.Add(game);
             await context.SaveChangesAsync();
 
-            var rules = new Rules(game.id,gameForm.TeamCount,gameForm.OneClubPlayers,gameForm.GwTransfers,gameForm.MaxTransfrs,gameForm.Bench,
+            var rules = new Rules(game.Id,gameForm.TeamCount,gameForm.OneClubPlayers,gameForm.GwTransfers,gameForm.MaxTransfrs,gameForm.Bench,
                 gameForm.MaxUserTeams,gameForm.StartBalance,
                 gameForm.StartUpGkCount, gameForm.StartUpDefCount, gameForm.StartUpMidCount, gameForm.StartUpFwdCount);
             context.rules.Add(rules);
@@ -300,12 +294,12 @@
 
             foreach (var actionScore in gameForm.ActionScores)
             {
-                Points points = new Points(game.id,actionScore.ActionId,actionScore.PositionId,actionScore.Score);
+                Points points = new Points(game.Id,actionScore.ActionId,actionScore.PositionId,actionScore.Score);
                 context.Add(points);
             }
             foreach (var posCountRules in gameForm.PositionRules)
             {
-                PositionCountRules rule = new PositionCountRules(game.id, posCountRules.PositionId, posCountRules.Count);
+                PositionCountRules rule = new PositionCountRules(game.Id, posCountRules.PositionId, posCountRules.Count);
                 context.positionCountRules.Add(rule);
             }
             await context.SaveChangesAsync();
@@ -423,21 +417,21 @@
         DateOnly now = DateOnly.FromDateTime(DateTime.Now);
         if (time == 1)
         {
-            Games = await context.games.Where(i=>i.start < now && i.end > now).Include(i=>i.Image).AsNoTracking().ToListAsync();
+            Games = await context.games.Where(i=>i.Start < now && i.End > now).Include(i=>i.Image).AsNoTracking().ToListAsync();
             buttonColors[0] = "lightgray";
             buttonColors[1] = "white";
             buttonColors[2] = "white";
         }
         else if (time == 2)
         {
-            Games = await context.games.Where(i => i.end < now).Include(i => i.Image).AsNoTracking().ToListAsync();
+            Games = await context.games.Where(i => i.End < now).Include(i => i.Image).AsNoTracking().ToListAsync();
             buttonColors[0] = "white";
             buttonColors[1] = "white";
             buttonColors[2] = "lightgray";
         }
         else
         {
-            Games = await context.games.Where(i => i.start > now).Include(i => i.Image).AsNoTracking().ToListAsync();
+            Games = await context.games.Where(i => i.Start > now).Include(i => i.Image).AsNoTracking().ToListAsync();
             buttonColors[0] = "white";
             buttonColors[1] = "lightgray";
             buttonColors[2] = "white";

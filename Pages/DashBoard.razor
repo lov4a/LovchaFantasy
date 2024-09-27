@@ -1,0 +1,73 @@
+﻿@page "/dashboard/{gameId:int}/{teamId:int}/{tour:int}"
+@inject ApplicationDbContext context
+@using LovchaFantasy.Models.Fantasy
+@using LovchaFantasy.Models.Components
+@using LovchaFantasy.Context
+@using Microsoft.EntityFrameworkCore
+@using LovchaFantasy.Components
+
+<div class="game-head">
+    <table>
+        <thead>
+            <tr>
+                <th width="10%">
+                    @if (game?.Image != null)
+                    {
+                        <img src="@game.Image.FilePath" alt="@game.Image.FileName" />
+                    }
+                </th>
+                <th width="30%">@game?.Name
+                <td />
+                <a style="cursor:pointer" @onclick="ShowModal">Подробности</a></th>
+                <th width="20%" style="text-align:start">@game?.Start - @game?.End</th>
+                <th width="20%" style="text-align:start"></th>
+            </tr>
+        </thead>
+    </table>
+</div>
+@code {
+    [Parameter]
+    public int GameId { get; set; }
+    [Parameter]
+    public int TeamId { get; set; }
+    [Parameter]
+    public int tour { get; set; }
+    public Game game = new Game();
+    private Rules? gameRules = new Rules();
+    private List<Actionn> Actions { get; set; } = null!;
+    private List<Points> gamePoints { get; set; } = null!;
+    private List<int> gameActions { get; set; } = null!;
+    private bool showMainInfo = true;
+    private bool showRules = false;
+    private bool showPoints = false;
+
+    protected override async Task OnInitializedAsync()
+
+    {
+        game = await context.games.Include(g => g.Image).Include(g => g.Rules).FirstOrDefaultAsync(g => g.Id == GameId);
+        if (game == null)
+        {
+            Console.WriteLine("Game not found.");
+            return;
+        }
+        gameRules = context.rules.Find(GameId);
+        showMainInfo = true;
+        showRules = false;
+        showPoints = false;
+    }
+
+    private bool isModalVisible = false;
+
+    private void ShowModal()
+    {
+        isModalVisible = true;
+        gameRules = context.rules.Find(game.Id);
+        gamePoints = context.points.Where(i => i.GameId == game.Id).OrderBy(i => i.ActionnId).AsNoTracking().ToList();
+        gameActions = gamePoints.Select(i => i.ActionnId).Distinct().ToList();
+    }
+
+    private void CloseModal()
+    {
+        isModalVisible = false;
+    }
+}

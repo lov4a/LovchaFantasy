@@ -25,33 +25,18 @@ namespace LovchaFantasy.Context
         public DbSet<GameWeekPlayer> gameWeekPlayers { get; set; } = null!;
         public DbSet<GameClubs> gameClubs { get; set; } = null!;
         public DbSet<PositionCountRules> positionCountRules { get; set; } = null!;
+        public DbSet<UserTeamGameWeekPlayer> userTeamGameWeekPlayers { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
             modelBuilder.Entity<Game>(entity =>
             {
-                entity.HasKey(e => e.id);
-
-                entity.Property(e => e.id).IsRequired();
-
-                entity.Property(e => e.name).IsRequired();
-
-                entity.Property(e => e.start).IsRequired();
-
-                entity.Property(e => e.end).IsRequired();
-
-                entity.Property(e => e.imageId).IsRequired();
-                entity.HasOne(e => e.Image)
-                      .WithMany()
-                      .HasForeignKey(e => e.imageId)
-                      .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(e => e.Image)
-                      .WithMany() 
-                      .HasForeignKey(e => e.imageId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .WithMany(g => g.Games)
+                      .HasForeignKey(g => g.ImageId)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
             modelBuilder.Entity<Rules>(entity =>
             {
@@ -184,6 +169,20 @@ namespace LovchaFantasy.Context
                 entity.HasOne(pcr => pcr.Position)
                       .WithMany(pcr => pcr.PositionCountRules)
                       .HasForeignKey(pcr => pcr.PositionId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<UserTeamGameWeekPlayer>(entity =>
+            {
+                entity.HasKey(gwp => new {gwp.UserTeamId,gwp.GameId, gwp.PlayerId, gwp.GameWeekId });
+                entity.HasOne(gwp => gwp.UserTeam)
+                      .WithMany(gwp => gwp.UserTeamGameWeekPlayers)
+                      .HasForeignKey(gwp => new { gwp.UserTeamId, gwp.GameId })
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(gwp => gwp.GameWeekPlayer)
+                      .WithMany(gwp => gwp.UserTeamGameWeekPlayers)
+                      .HasForeignKey(gwp => new {gwp.PlayerId, gwp.GameWeekId })
                       .OnDelete(DeleteBehavior.Cascade);
             });
         }

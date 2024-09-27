@@ -1,5 +1,10 @@
 ﻿@page "/entry/{gameId:int}"
 @inject ApplicationDbContext context
+@inject AuthenticationStateProvider _authenticationStateProvider
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<IdentityUser> UserManager
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Identity;
 @using LovchaFantasy.Models.Fantasy
 @using LovchaFantasy.Models.Components
 @using LovchaFantasy.Context
@@ -16,8 +21,8 @@
                         <img src="@game.Image.FilePath" alt="@game.Image.FileName" />
                     }
                 </th>
-                <th width="30%">@game?.name<td /><a style="cursor:pointer" @onclick="ShowModal">Подробности</a></th>
-                <th width="20%" style="text-align:start">@game?.start - @game?.end</th>
+                <th width="30%">@game?.Name<td /><a style="cursor:pointer" @onclick="ShowModal">Подробности</a></th>
+                <th width="20%" style="text-align:start">@game?.Start - @game?.End</th>
                 <th width="20%" style="text-align:start"></th>
             </tr>
         </thead>
@@ -76,12 +81,43 @@
             <div>
                 <button @onclick="CleanSquad" class="btn-close" style="background-color:white; border-radius:10px;margin-left:3%;" title="Очистить состав" alt="Очистить состав"></button>
             </div>
+            <button @onclick="RegisterTeam" class="team-creating_squad-info_bar" style="background-color:yellow; margin-left:14%; color:black; font-weight:bold" title="Очистить состав" alt="ПОГНАЛИ!">Зарегистрировать комнаду</button>
             @if (Squad.TeamPlayers.Where(tp => tp.Id != 0).Count() == gameRules?.TeamCount)
             {
-                <div style="text-align:start">
-                    <button @onclick="ShowAcceptModal" class="team-creating_squad-info_bar" style="background-color:yellow; margin-left:14%; color:black; font-weight:bold" title="Очистить состав" alt="ПОГНАЛИ!">Зарегистрировать комнаду</button>
+                <div style="text-align:center">
+                    <button @onclick="RegisterTeam" class="team-creating_squad-info_bar" style="background-color:yellow; margin-left:14%; color:black; font-weight:bold" title="Очистить состав" alt="ПОГНАЛИ!">Зарегистрировать комнаду</button>
                 </div>
             }
+            else
+            {
+                <div></div>
+            }
+            <div style="display:block; text-align:end;padding-right:25%">
+                <div style="width:100%">
+                    <select style="width:60%" value="@(Squad.TeamPlayers.FirstOrDefault(tp => tp.Captain == true) == null ? "0" : Squad.TeamPlayers.FirstOrDefault(tp => tp.Captain == true).Id )" @onchange="AddCaptain">
+                        <option value="0" selected>Выберите капитана</option>
+                        @if (Squad.TeamPlayers.Where(tp => tp.Id != 0) != null)
+                        {
+                            @foreach (var player in Squad.TeamPlayers.Where(tp => tp.Id != 0).OrderBy(tp => tp.PositionId))
+                            {
+                                <option value="@player.Id">@player.Name[0].@player.Surname</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div>
+                    <select style="width:60%" value="@(Squad.TeamPlayers.FirstOrDefault(tp => tp.ViceCaptain == true) == null ? "0" : Squad.TeamPlayers.FirstOrDefault(tp => tp.ViceCaptain == true).Id )" @onchange="AddViceCaptain">
+                        <option value="0" selected>Выберите вице-капитана</option>
+                        @if (Squad.TeamPlayers.Where(tp => tp.Id != 0) != null)
+                        {
+                            @foreach (var player in Squad.TeamPlayers.Where(tp => tp.Id != 0).OrderBy(tp => tp.PositionId))
+                            {
+                                <option value="@player.Id">@player.Name[0].@player.Surname</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -163,19 +199,32 @@
                                         <div><br /></div>
                                     </div>
                                 }
-                                <div @onclick="() => FilterByPosition(position.Id)" class="line_player_image-container"><img src="@footballer.ImagePath" /></div>
+                                <div @onclick="() => FilterByPosition(position.Id)" class="line_player_image-container">
+                                    <img src="@footballer.ImagePath" />
+                                    @if(footballer.Captain == true)
+                                    {
+                                        <img class="band" src="/Images/Icons/captain-band.png" />
+                                    }
+                                    else if (footballer.ViceCaptain == true)
+                                    {
+                                        <img class="band" src="/Images/Icons/vicecaptain-band.png" />
+                                    }
+                                </div>
                                 @if (footballer.Id == 0)
                                 {
-
-                                    <div>@position.ShortName</div>
-                                    <div><br /></div>
+                                    <div class ="line_player_info">
+                                        <div>@position.ShortName</div>
+                                        <div><br /></div>
+                                    </div>
                                 }
                                 else
                                 {
-                                    <div>@footballer.Surname</div>
-                                    
+                                    <div class="line_player_info">
+                                        <div>@footballer.Surname</div>
+                                        <div>@footballer.Price</div>
+                                    </div>
+                                                        
                                 }
-                                <div>@footballer.Price</div>
                             </div>
                         }
                     </div>
@@ -199,15 +248,15 @@
                 <tbody>
                     <tr>
                         <td width="40%">Название</td>
-                        <td width="60%" style="text-align:start">@game?.name</td>
+                        <td width="60%" style="text-align:start">@game?.Name</td>
                     </tr>
                     <tr>
                         <td width="40%">Дата начала</td>
-                        <td width="60%" style="text-align:start">@game?.start</td>
+                        <td width="60%" style="text-align:start">@game?.Start</td>
                     </tr>
                     <tr>
                         <td width="40%">Дата завершения</td>
-                        <td width="60%" style="text-align:start">@game?.end</td>
+                        <td width="60%" style="text-align:start">@game?.End</td>
                     </tr>
                 </tbody>
             </table>
@@ -317,28 +366,52 @@
     private List<PositionCountRules> positionCountRules { get; set; } = null!;
 
     private Pagination pagination = new Pagination();
+    private int CaptainId;
+    private int ViceCaptainId;
+
+    private string userId;
+    private IEnumerable<Claim> _claims = Enumerable.Empty<Claim>();
 
     protected override async Task OnInitializedAsync()
-
     {
-        game = await context.games.Include(g=>g.Image).Include(g=>g.Rules).FirstOrDefaultAsync(g => g.id == GameId);
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            var identityUser = await UserManager.GetUserAsync(user);
+            if (identityUser != null)
+            {
+                userId = identityUser.Id; // Получаем ID авторизованного пользователя
+                Console.WriteLine($"Existing user found. User ID: {userId}");
+            }
+            else
+            {
+                Console.WriteLine("User is authenticated but not found in the database.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("User is not authenticated.");
+        }
+        game = await context.games.Include(g=>g.Image).Include(g=>g.Rules).FirstOrDefaultAsync(g => g.Id == GameId);
         if (game == null)
         {
             Console.WriteLine("Game not found.");
             return;
         }
         gameRules = context.rules.Find(GameId);
-        gameWeek = await context.gameWeeks.FirstOrDefaultAsync(gw => gw.GameId == game.id && gw.Completed == null);
+        gameWeek = await context.gameWeeks.FirstOrDefaultAsync(gw => gw.GameId == game.Id && gw.Completed == null);
         players = await context.gameWeekPlayers.Where(p => p.GameWeekId == gameWeek.Id).Include(p=>p.Player).Include(p=>p.Position).Include(p=>p.Club).ThenInclude(c=>c.Image).OrderByDescending(p=>p.Price).AsNoTracking().ToListAsync();
         Actions = await context.actions.AsNoTracking().ToListAsync();
-        positionCountRules = await context.positionCountRules.Where(pcr => pcr.GameId == game.id).AsNoTracking().ToListAsync();
+        positionCountRules = await context.positionCountRules.Where(pcr => pcr.GameId == game.Id).AsNoTracking().ToListAsync();
         if (players != null)
         {
             minPrice = players.MinBy(p => p.Price).Price;
             minPrice -= minPrice % 1;
             maxPrice = players.MaxBy(p => p.Price).Price;
         }
-        Clubs = await context.gameClubs.Where(x => x.GameId == game.id).Include(c => c.Club).AsNoTracking().ToListAsync();
+        Clubs = await context.gameClubs.Where(x => x.GameId == game.Id).Include(c => c.Club).AsNoTracking().ToListAsync();
         Positions = await context.positions.AsNoTracking().ToListAsync();
         showMainInfo = true;
         showRules = false;
@@ -350,7 +423,7 @@
             {
                 for (int i = 0; i < positionCountRules.FirstOrDefault(pcr => pcr.PositionId == position.Id).MaxCount; i++)
                 {
-                    Squad.TeamPlayers.Add(new Footballer { Id = 0, PositionId = position.Id, ImagePath = "/Images/Icons/plus_Icon.png" });
+                    Squad.TeamPlayers.Add(new Footballer { Id = 0, PositionId = position.Id, ImagePath = "/Images/Icons/plus_Icon.png", Captain = false, ViceCaptain = false });
                 }
             }
         }
@@ -364,6 +437,8 @@
             pagination.setTotalPages(players.Count(), 12);
             pagination.setPage(1);
         }
+        CaptainId = 0;
+        ViceCaptainId = 0;
     }
 
     private void ShowMainInfo()
@@ -393,8 +468,8 @@
     private void ShowModal()
     {
         isModalVisible = true;
-        gameRules = context.rules.Find(game.id);
-        gamePoints = context.points.Where(i => i.GameId == game.id).OrderBy(i => i.ActionnId).AsNoTracking().ToList();
+        gameRules = context.rules.Find(game.Id);
+        gamePoints = context.points.Where(i => i.GameId == game.Id).OrderBy(i => i.ActionnId).AsNoTracking().ToList();
         gameActions = gamePoints.Select(i => i.ActionnId).Distinct().ToList();
     }
 
@@ -503,6 +578,8 @@
             emptySpot.Surname = player.Player.Surname;
             emptySpot.PositionId = player.PositionId;
             emptySpot.ClubId = player.ClubId;
+            emptySpot.Captain = false;
+            emptySpot.ViceCaptain = false;
         }
         Squad.OneTeamPlayers[player.ClubId.GetValueOrDefault()] = Squad.TeamPlayers.Where(i => i.ClubId == player.ClubId).Count();
         Squad.TeamCost += player.Price;
@@ -525,6 +602,8 @@
             playerToRemove.Name = null;
             playerToRemove.Surname = null;
             playerToRemove.ClubId = null;
+            playerToRemove.Captain = false;
+            playerToRemove.ViceCaptain = false;
         }
         StateHasChanged();
     }
@@ -557,12 +636,79 @@
             player.Name = null;
             player.Surname = null;
             player.ClubId = null;
+            player.Captain = false;
+            player.ViceCaptain = false;
         }
     }
 
-    private void RegisterTeam()
+
+    private async Task AddCaptain(ChangeEventArgs e)
     {
-        
+        var newCaptain = Squad.TeamPlayers.FirstOrDefault(tp => tp.Id == Int32.Parse(e.Value.ToString()));
+        var previousCaptain = Squad.TeamPlayers.FirstOrDefault(tp => tp.Captain == true);
+        if (previousCaptain != null)
+        {
+            previousCaptain.Captain = false;
+        }
+        if (newCaptain != null)
+        {
+            newCaptain.Captain = true;
+            newCaptain.ViceCaptain = false;
+            CaptainId = newCaptain.Id;
+        }
     }
+
+    private async Task AddViceCaptain(ChangeEventArgs e)
+    {
+        var newViceCaptain = Squad.TeamPlayers.FirstOrDefault(tp => tp.Id == Int32.Parse(e.Value.ToString()));
+        var previousViceCaptain = Squad.TeamPlayers.FirstOrDefault(tp => tp.ViceCaptain == true);
+        if (previousViceCaptain != null)
+        {
+            previousViceCaptain.ViceCaptain = false;
+        }
+        if (newViceCaptain != null)
+        {
+            newViceCaptain.ViceCaptain = true;
+            newViceCaptain.Captain = false;
+            CaptainId = 0;
+            ViceCaptainId = newViceCaptain.Id;
+        }
+    }
+    async Task<string> getUserId()
+    {
+        var user = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
+        var UserId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+        return UserId;
+    }
+    async Task<string?> GetUserId()
+    {
+        var user = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User;
+        var userIdClaim = user.FindFirst(u => u.Type == "sub" || u.Type == "nameidentifier")?.Value;
+        return userIdClaim;
+    }
+
+    private string errorMessage = string.Empty;
+    private async Task RegisterTeam()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (!user.Identity.IsAuthenticated)
+        {
+            throw new UnauthorizedAccessException("Пользователь не авторизован для выполнения этого действия.");
+        }
+
+        var identityUser = await UserManager.GetUserAsync(user);
+        if (identityUser == null)
+        {
+            throw new Exception("Не удалось получить информацию о пользователе.");
+        }
+        var team = new UserTeam(1, 35, identityUser.UserName);
+        context.userTeam.Add(team);
+        
+        await context.SaveChangesAsync();
+
+    }
+
 
 }

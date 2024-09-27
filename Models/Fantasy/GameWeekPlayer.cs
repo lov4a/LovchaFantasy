@@ -11,7 +11,10 @@
         public int? ClubId { get; set; }
         public Club? Club { get; set; } = new Club();
         public double Price { get; set; }
-        public GameWeekPlayer() { }
+        public ICollection<UserTeamGameWeekPlayer> UserTeamGameWeekPlayers { get; set; }
+        public GameWeekPlayer() {
+            UserTeamGameWeekPlayers = new HashSet<UserTeamGameWeekPlayer>();
+        }
         public GameWeekPlayer(int playerId, int gameWeekId, int positionId, int clubId, double price)
         {
             PlayerId = playerId;

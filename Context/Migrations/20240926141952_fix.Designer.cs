@@ -3,6 +3,7 @@ using System;
 using LovchaFantasy.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LovchaFantasy.Context.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240926141952_fix")]
+    partial class fix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -115,28 +117,28 @@ namespace LovchaFantasy.Context.Migrations
 
             modelBuilder.Entity("LovchaFantasy.Models.Fantasy.Game", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
 
-                    b.Property<DateOnly>("End")
+                    b.Property<DateOnly>("end")
                         .HasColumnType("date");
 
-                    b.Property<int>("ImageId")
+                    b.Property<int>("imageId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateOnly>("Start")
+                    b.Property<DateOnly>("start")
                         .HasColumnType("date");
 
-                    b.HasKey("Id");
+                    b.HasKey("id");
 
-                    b.HasIndex("ImageId");
+                    b.HasIndex("imageId");
 
                     b.ToTable("games");
                 });
@@ -503,9 +505,9 @@ namespace LovchaFantasy.Context.Migrations
             modelBuilder.Entity("LovchaFantasy.Models.Fantasy.Game", b =>
                 {
                     b.HasOne("LovchaFantasy.Models.Fantasy.Image", "Image")
-                        .WithMany("Games")
-                        .HasForeignKey("ImageId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .WithMany()
+                        .HasForeignKey("imageId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Image");
@@ -771,11 +773,6 @@ namespace LovchaFantasy.Context.Migrations
             modelBuilder.Entity("LovchaFantasy.Models.Fantasy.GameWeekPlayer", b =>
                 {
                     b.Navigation("UserTeamGameWeekPlayers");
-                });
-
-            modelBuilder.Entity("LovchaFantasy.Models.Fantasy.Image", b =>
-                {
-                    b.Navigation("Games");
                 });
 
             modelBuilder.Entity("LovchaFantasy.Models.Fantasy.League", b =>

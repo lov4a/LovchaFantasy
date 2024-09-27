@@ -26,6 +26,14 @@ builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuth
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.ExpireTimeSpan = TimeSpan.FromDays(14); // Продолжительность жизни куки
+    options.LoginPath = "/Identity/Account/Login";  // Страница для входа
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";  // Страница для доступа
+    options.SlidingExpiration = true;  // Автоматическое продление срока действия куки
+});
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

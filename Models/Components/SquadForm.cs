@@ -19,6 +19,8 @@ namespace LovchaFantasy.Models.Components
         public double? Price { get; set; }
         public string? ImagePath { get; set; }
         public int? ClubId { get; set; }
+        public bool Captain { get; set; }
+        public bool ViceCaptain { get; set; }
 
     }
 }

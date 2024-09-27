@@ -1,7 +1,7 @@
 ﻿@* ModalWindow.razor *@
 @if (IsVisible)
 {
-    <div class="modal-backdrop" >
+    <div class="modal-backdrop">
         <div class="modalWindow" style="width:@Width;" @onclick:stopPropagation="true">
             <div class="modal-header">
                 <h5 class="modal-title">@Title</h5>
@@ -34,7 +34,7 @@
     }
 }
 
-@* CSS styles (можно вынести в отдельный файл) *@
+@* CSS styles *@
 <style>
     .modal-backdrop {
         position: fixed;
@@ -54,18 +54,42 @@
         border-radius: 5px;
         width: 70%;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        max-height: 80vh; /* Ограничиваем высоту модального окна */
+        display: flex;
+        flex-direction: column;
     }
-    .modalWindow h3{
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .modal-body {
+        overflow-y: auto; /* Добавляем вертикальную прокрутку */
+        flex-grow: 1; /* Заставляем этот блок занимать оставшееся пространство */
+        margin-bottom: 15px;
+    }
+
+    .modal-footer {
+        text-align: right;
+    }
+
+    /* Размеры заголовка */
+    .modalWindow h3 {
         font-size: 17px;
-        font-weight:bold;
+        font-weight: bold;
     }
-    .modal-header_menu{
-        display:flex;
-        width:90%;
+
+    .modal-header_menu {
+        display: flex;
+        width: 90%;
     }
-        .modal-header_menu h1{
-            font-size: calc( (100vw - 320px)/(2000 - 320) * (16 - 14) + 14px);
-            margin-right:3%;
-            margin-bottom:0;
+
+        .modal-header_menu h1 {
+            font-size: calc( (100vw - 320px) / (2000 - 320) * (16 - 14) + 14px);
+            margin-right: 3%;
+            margin-bottom: 0;
         }
 </style>

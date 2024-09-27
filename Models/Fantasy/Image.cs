@@ -7,15 +7,18 @@ namespace LovchaFantasy.Models.Fantasy
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Range(1, int.MaxValue, ErrorMessage = "ID не может быть 0.")]
         public int Id { get; private set; }
         [Required]
-        public string FileName { get; private set; }
+        public string FileName { get; private set; } = null!;
         [Required]
-        public string ContentType { get; private set; }
+        public string ContentType { get; private set; } = null!;
         [Required]
-        public string FilePath { get; private set; }
+        public string FilePath { get; private set; } = null!;
 
-        public Image() { }
+        public Image() {
+            Games = new HashSet<Game>();
+        }
         public Image(string fileName, string contentType, string filePath)
         {
             FileName = fileName;
@@ -32,5 +35,6 @@ namespace LovchaFantasy.Models.Fantasy
         {
             FileName = newFileName;
         }
+        public ICollection<Game>? Games { get; set; }
     }
 }
